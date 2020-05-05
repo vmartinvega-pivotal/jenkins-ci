@@ -1,4 +1,10 @@
 Install minikube
+
+```
+git clone  https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test
+```
+
+
 configure the config file (to connect to kubernetes) to emmbed the certificates
 Configure cloud in jenkins
 Configure secret from file (the previously created file)
