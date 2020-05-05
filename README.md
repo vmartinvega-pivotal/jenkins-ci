@@ -1,8 +1,11 @@
 Install minikube
 
+minikube start --driver=virtualbox --memory=16g
+
 ```
 git clone  https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test
 ```
+
 
 
 configure the config file (to connect to kubernetes) to emmbed the certificates
