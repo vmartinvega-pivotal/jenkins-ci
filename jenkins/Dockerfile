@@ -26,6 +26,7 @@ RUN /usr/local/bin/install-plugins.sh github-api
 RUN /usr/local/bin/install-plugins.sh kubernetes-client-api
 RUN /usr/local/bin/install-plugins.sh ldap
 RUN /usr/local/bin/install-plugins.sh workflow-scm-step
+RUN /usr/local/bin/install-plugins.sh workflow-cps-global-lib
 RUN /usr/local/bin/install-plugins.sh timestamper
 RUN /usr/local/bin/install-plugins.sh locale
 RUN /usr/local/bin/install-plugins.sh ant
