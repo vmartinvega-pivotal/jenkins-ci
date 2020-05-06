@@ -8,11 +8,11 @@ kubectl config set-credentials minikube --client-key=$MINIKUBE_CLIENT_KEY  --emb
 kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --embed-certs=true
 
 minikube ssh 'git clone https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && docker build -t vicente/jenkins-image .'
+minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins-image .'
 minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && unzip jnlp-agent.zip'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/jnlp-agent build -t vicente/jnlp-agent .'
+minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/jnlp-agent && docker build -t c3alm-sgt/jnlp-agent .'
 minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && unzip maven-jnlp-agent.zip'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/maven-jnlp-agent && docker build -t vicente/maven-jnlp-agent .'
+minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/maven-jnlp-agent && docker build -t c3alm-sgt/maven-jnlp-agent .'
 
 kubectl create namespace jenkins
 kubectl create -f jenkins/jenkins-deployment.yaml --namespace jenkins
