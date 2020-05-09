@@ -55,7 +55,11 @@ if [[ $INSTALL_GITLAB = "true" ]]
 then
     helm repo add gitlab https://charts.gitlab.io/
     helm repo update
-    helm install -f values-minikube-minimum.yaml gitlab gitlab/gitlab
+    # Get minikube ip
+    MINIKUBE_IP=$(minikube ip)
+    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
+    helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file gitlab gitlab/gitlab
+    rm $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
 fi
 
 NODE_PORT=$(kubectl get services jenkins --namespace jenkins -o jsonpath='{.spec.ports[0].nodePort}')
