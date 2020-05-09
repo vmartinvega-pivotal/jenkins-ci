@@ -1,7 +1,9 @@
 Install minikube
+Install helm v3
+Install kubectl
 
 ```
-minikube start --driver=virtualbox --memory=16g
+minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=20g
 ```
 
 ```

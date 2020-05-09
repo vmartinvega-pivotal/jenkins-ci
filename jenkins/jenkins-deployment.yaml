@@ -29,6 +29,12 @@ spec:
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
+            - name: projects
+              mountPath: /hosthome/vicente/Documents/Projects
       volumes:
         - name: jenkins-home
           emptyDir: {}
+        - name: projects
+          hostPath:
+            path: /hosthome/vicente/Documents/Projects
+            type: Directory

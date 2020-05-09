@@ -1,22 +1,62 @@
+INSTALL_JENKINS="false"
+INSTALL_REGISTRY="false"
+INSTALL_GITLAB="true"
+
+# Gets the path for the different certificates to later change those values to embed certificates
+# inside kubeconfig
 MINIKUBE_CLIENT_CERTIFICATE=$(kubectl config view -o jsonpath='{.users[?(@.name == "minikube")].user.client-certificate}')
 MINIKUBE_CLIENT_KEY=$(kubectl config view -o jsonpath='{.users[?(@.name == "minikube")].user.client-key}')
 CA_CERTIFICATE=$(kubectl config view -o jsonpath='{.clusters[?(@.name == "minikube")].cluster.certificate-authority}')
 KUBERNETES_URL=$(kubectl config view -o jsonpath='{.clusters[?(@.name == "minikube")].cluster.server}')
 
+# Update the certs path in the kubeconfig file with embed certificates
+# this is needed to configure the kubernetes plugin for jenkins
 kubectl config set-credentials minikube --client-certificate=$MINIKUBE_CLIENT_CERTIFICATE --embed-certs=true
 kubectl config set-credentials minikube --client-key=$MINIKUBE_CLIENT_KEY  --embed-certs=true
 kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --embed-certs=true
 
-minikube ssh 'git clone https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins-image .'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && unzip jnlp-agent.zip'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/jnlp-agent && docker build -t c3alm-sgt/jnlp-agent .'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins && unzip maven-jnlp-agent.zip'
-minikube ssh 'cd jenkins-pipeline-k8s-test/jenkins/maven-jnlp-agent && docker build -t c3alm-sgt/maven-jnlp-agent .'
+# Configure minikube
+TEMP_FOLDER=/minikube-install
+HOST_PROJECTS_FOLDER=/home/vicente/Documents/Projects
+MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Documents/Projects
 
-kubectl create namespace jenkins
-kubectl create -f jenkins/jenkins-deployment.yaml --namespace jenkins
-kubectl create -f jenkins/jenkins-service.yaml --namespace jenkins
+rm -Rf $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
+mkdir $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
+
+cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER && git clone https://github.com/kameshsampath/minikube-helpers 
+
+if [[ $INSTALL_REGISTRY = "true" ]]
+then
+    minikube addons enable registry
+    cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/minikube-helpers/registry && \
+    kubectl apply -n kube-system \
+        -f registry-aliases-config.yaml \
+        -f node-etc-hosts-update.yaml \
+        -f patch-coredns-job.yaml
+    CLUSTER_IP_REGISTRY=$(kubectl -n kube-system get svc registry -o jsonpath='{.spec.clusterIP}')
+fi
+
+cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER && git clone https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test
+
+if [[ $INSTALL_JENKINS = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins-image ."
+    kubectl create -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-deployment.yaml
+    kubectl create -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-service.yaml
+fi
+
+JNLP_AGENT_FOLDER=jnlp-agent
+#minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
+
+MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
+#minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
+
+if [[ $INSTALL_GITLAB = "true" ]]
+then
+    helm repo add gitlab https://charts.gitlab.io/
+    helm repo update
+    helm install -f values-minikube-minimum.yaml gitlab gitlab/gitlab
+fi
 
 NODE_PORT=$(kubectl get services jenkins --namespace jenkins -o jsonpath='{.spec.ports[0].nodePort}')
 MINIKUBE_IP=$(minikube ip)
