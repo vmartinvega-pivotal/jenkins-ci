@@ -1,6 +1,7 @@
 INSTALL_JENKINS="false"
 INSTALL_REGISTRY="false"
 INSTALL_GITLAB="true"
+INSTALL_AGENTS="false"
 
 # Gets the path for the different certificates to later change those values to embed certificates
 # inside kubeconfig
@@ -38,19 +39,6 @@ fi
 
 cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER && git clone https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test
 
-if [[ $INSTALL_JENKINS = "true" ]]
-then
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins-image ."
-    kubectl create -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-deployment.yaml
-    kubectl create -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-service.yaml
-fi
-
-JNLP_AGENT_FOLDER=jnlp-agent
-#minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
-
-MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
-#minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
-
 if [[ $INSTALL_GITLAB = "true" ]]
 then
     helm repo add gitlab https://charts.gitlab.io/
@@ -60,27 +48,51 @@ then
     sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
     helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file gitlab gitlab/gitlab
     rm $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
+    minikube addons enable ingress
+    echo "Gitlab root password: "
+    kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 fi
 
-NODE_PORT=$(kubectl get services jenkins --namespace jenkins -o jsonpath='{.spec.ports[0].nodePort}')
-MINIKUBE_IP=$(minikube ip)
+if [[ $INSTALL_JENKINS = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-master && docker build -t c3alm-sgt/cloudbees-core-mm-sgt ."
+    kubectl create serviceaccount jenkins
+    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-secrets.yaml
+    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-config-map.yaml
+    MINIKUBE_IP=$(minikube ip)
+    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins_yaml.yml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    rn $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+fi
 
-echo ""
-echo "***************************************"
-echo ""
-echo "Jenkins Url to access: http://$MINIKUBE_IP:$NODE_PORT"
-echo ""
-INTERNAL_IP=$(kubectl get pod --namespace jenkins -o jsonpath='{.items[0].status.podIP}')
+if [[ $INSTALL_AGENTS = "true" ]]
+then
+    JNLP_AGENT_FOLDER=jnlp-agent
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
 
-echo "Jenkins Url to configure Kubernetes Plugin: http://$INTERNAL_IP:8080"
-echo ""
-echo "Junkins Tunnel to configure Kubernetes Plugion: http://$INTERNAL_IP:50000"
-echo ""
+    MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
+fi
 
-cp ${HOME}/.kube/config ./config
-PWD=$(pwd)
-echo "Configure a secret file for kubernetes config file located at: $PWD/config"
-echo ""
-echo "Configure Kubernetes Url: $KUBERNETES_URL"
-echo ""
-echo "***************************************"
+#NODE_PORT=$(kubectl get services jenkins --namespace jenkins -o jsonpath='{.spec.ports[0].nodePort}')
+#MINIKUBE_IP=$(minikube ip)
+
+#echo ""
+#echo "***************************************"
+#echo ""
+#echo "Jenkins Url to access: http://$MINIKUBE_IP:$NODE_PORT"
+#echo ""
+#INTERNAL_IP=$(kubectl get pod --namespace jenkins -o jsonpath='{.items[0].status.podIP}')
+
+#echo "Jenkins Url to configure Kubernetes Plugin: http://$INTERNAL_IP:8080"
+#echo ""
+#echo "Junkins Tunnel to configure Kubernetes Plugion: http://$INTERNAL_IP:50000"
+#echo ""
+
+#cp ${HOME}/.kube/config ./config
+#PWD=$(pwd)
+#echo "Configure a secret file for kubernetes config file located at: $PWD/config"
+#echo ""
+#echo "Configure Kubernetes Url: $KUBERNETES_URL"
+#echo ""
+#echo "***************************************"

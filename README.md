@@ -1,9 +1,11 @@
 Install minikube
+Install minishift
 Install helm v3
 Install kubectl
 
 ```
-minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=20g
+minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=30g
+minishift start --vm-driver=virtualbox --memory=16g --cpus=8 --disk-size=20g
 ```
 
 ```

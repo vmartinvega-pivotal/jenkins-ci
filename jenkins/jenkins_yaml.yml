@@ -1,0 +1,163 @@
+---
+apiVersion: "apps/v1"
+kind: "StatefulSet"
+metadata:
+  annotations: {}
+  labels:
+    type: "master"
+    tenant: "sgt-pre"
+    com.cloudbees.pse.type: "master"
+    com.cloudbees.cje.type: "master"
+    com.cloudbees.pse.tenant: "sgt-pre"
+    com.cloudbees.cje.tenant: "sgt-pre"
+  name: "sgt-pre"
+spec:
+  selector:
+    matchLabels:
+      type: "master"
+      tenant: "sgt-pre"
+      com.cloudbees.pse.type: "master"
+      com.cloudbees.cje.type: "master"
+      com.cloudbees.pse.tenant: "sgt-pre"
+      com.cloudbees.cje.tenant: "sgt-pre"
+  serviceName: "sgt-pre"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        type: "master"
+        tenant: "sgt-pre"
+        com.cloudbees.pse.type: "master"
+        com.cloudbees.cje.type: "master"
+        com.cloudbees.pse.tenant: "sgt-pre"
+        com.cloudbees.cje.tenant: "sgt-pre"
+      name: "sgt-pre"
+    spec:
+      containers:
+      - env:
+        - name: "SECRETS"
+          value: "/jcasc/secrets"
+        - name: "CASC_JENKINS_CONFIG"
+          value: "http://gitlab.MINIKUBE_IP.nip.io/raw/ALMOne/jenkins-configuration/v1.5.2/jenkins.yaml"
+        - name: "ALM_CONF_PROFILE"
+          value: "alm-one-pre"
+        - name: "ENVIRONMENT"
+          value: "KUBERNETES"
+        - name: "JAVA_OPTS"
+          value: "-Xmx2867m -Xms2867m -Djenkins.model.Jenkins.slaveAgentPortEnforce=\"\
+            true\" -Djenkins.model.Jenkins.slaveAgentPort=\"50000\" -Dhudson.TcpSlaveAgentListener.port=\"\
+            50003\" -DMASTER_GRANT_ID=\"9260a172-e3d7-46d5-aaf9-c78ab73350c9\" -DMASTER_DOMAIN=\"\
+            sgt-pre\" -Dcb.IMProp.warProfiles.cje=\"kubernetes.json\" -DMASTER_INDEX=\"\
+            2\" -DMASTER_OPERATIONSCENTER_ENDPOINT=\"http://cjoc.alm-ccc-pre.svc.cluster.local/cjoc\"\
+            \ -Dhudson.lifecycle=\"hudson.lifecycle.ExitLifecycle\" -DMASTER_NAME=\"\
+            sgt-pre\" -DMASTER_ENDPOINT=\"https://sgt-pre.jenkins.almpre.europe.cloudcenter.corp/sgt-pre/\"\
+            \ -DMASTER_RESOURCE_URL= -XshowSettings:vm -XX:MaxRAMFraction=1 -XX:+ExplicitGCInvokesConcurrent\
+            \ -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -XX:+UseGCLogFileRotation\
+            \ -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=40m -Xloggc:$JENKINS_HOME/gc.log\
+            \ -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintHeapAtGC -XX:+PrintGCCause\
+            \ -XX:+PrintTenuringDistribution -XX:+PrintReferenceGC -XX:+PrintAdaptiveSizePolicy\
+            \ -Dhudson.slaves.NodeProvisioner.initialDelay=0 -Dhudson.DNSMultiCast.disabled=true\
+            \ -Djenkins.install.runSetupWizard=false -Dio.jenkins.plugins.kubernetes.disableNoDelayProvisioning=true\
+            \ -Dorg.csanchez.jenkins.plugins.kubernetes.pipeline.PodTemplateStepExecution.defaultImage=registry.global.ccc.srvb.can.paas.cloudcenter.corp/ccc-alm/cloudbees-core-agent:2.204.2.2"
+        - name: "JENKINS_OPTS"
+          value: "--prefix=/sgt-pre/"
+        - name: "KUBERNETES_JENKINS_URL"
+          value: "http://jenkins.MINIKUBE_IP.nip.io/sgt-pre/"
+        envFrom:
+        - configMapRef:
+            name: "sgt-config-maps"
+        image: "c3alm-sgt/cloudbees-core-mm-sgt:latest"
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: "/sgt-pre/login"
+            port: 8080
+          initialDelaySeconds: 300
+          periodSeconds: 15
+          timeoutSeconds: 15
+        name: "jenkins"
+        ports:
+        - containerPort: 8080
+          name: "http"
+        - containerPort: 50000
+          name: "jnlp"
+        resources:
+          limits:
+            cpu: "2.000000"
+            memory: "4096.000000M"
+          requests: {}
+        volumeMounts:
+        - mountPath: "/jcasc/secrets"
+          name: "jasc-secret"
+          readOnly: true
+        - mountPath: "/var/jenkins_home"
+          name: "jenkins-home"
+      nodeSelector: {}
+      securityContext:
+        runAsUser: 1000
+      serviceAccountName: "jenkins"
+      terminationGracePeriodSeconds: 1200
+      volumes:
+      - name: "jasc-secret"
+        secret:
+          secretName: "sgt-secrets"
+  volumeClaimTemplates:
+  - apiVersion: "v1"
+    kind: "PersistentVolumeClaim"
+    metadata:
+      annotations: {}
+      labels: {}
+      name: "jenkins-home"
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        limits: {}
+        requests:
+          storage: "20Gi"
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  annotations: {}
+  labels:
+    type: "master"
+    tenant: "sgt-pre"
+    com.cloudbees.pse.type: "master"
+    com.cloudbees.cje.type: "master"
+    com.cloudbees.pse.tenant: "sgt-pre"
+    com.cloudbees.cje.tenant: "sgt-pre"
+  name: "sgt-pre"
+spec:
+  ports:
+  - name: "http"
+    port: 80
+    protocol: "TCP"
+    targetPort: 8080
+  - name: "agent"
+    port: 50003
+    protocol: "TCP"
+    targetPort: 50000
+  selector:
+    type: "master"
+    tenant: "sgt-pre"
+    com.cloudbees.pse.type: "master"
+    com.cloudbees.cje.type: "master"
+    com.cloudbees.pse.tenant: "sgt-pre"
+    com.cloudbees.cje.tenant: "sgt-pre"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sgt-pre-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: jenkins.MINIKUBE_IP.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: sgt-pre
+          servicePort: 80
+
