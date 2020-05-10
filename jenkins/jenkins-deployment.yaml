@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: jenkins
-          image: c3alm-sgt/jenkins-image:latest
+          image: c3alm-sgt/jenkins:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: JAVA_OPTS

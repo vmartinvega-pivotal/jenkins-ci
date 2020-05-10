@@ -38,7 +38,7 @@ spec:
         - name: "SECRETS"
           value: "/jcasc/secrets"
         - name: "CASC_JENKINS_CONFIG"
-          value: "http://gitlab.MINIKUBE_IP.nip.io/raw/ALMOne/jenkins-configuration/v1.5.2/jenkins.yaml"
+          value: "http://gitlab.local.nip.io/raw/ALMOne/jenkins-configuration/v1.5.2/jenkins.yaml"
         - name: "ALM_CONF_PROFILE"
           value: "alm-one-pre"
         - name: "ENVIRONMENT"
@@ -62,7 +62,7 @@ spec:
         - name: "JENKINS_OPTS"
           value: "--prefix=/sgt-pre/"
         - name: "KUBERNETES_JENKINS_URL"
-          value: "http://jenkins.MINIKUBE_IP.nip.io/sgt-pre/"
+          value: "http://jenkins.local.nip.io/sgt-pre/"
         envFrom:
         - configMapRef:
             name: "sgt-config-maps"
@@ -154,7 +154,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: jenkins.MINIKUBE_IP.nip.io
+  - host: jenkins.local.nip.io
     http:
       paths:
       - backend:
