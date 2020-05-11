@@ -1,4 +1,4 @@
-INSTALL_JENKINS="false"
+INSTALL_JENKINS="true"
 INSTALL_REGISTRY="false"
 INSTALL_GITLAB="true"
 INSTALL_AGENTS="false"
@@ -53,9 +53,8 @@ then
     kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
     kubectl get secret gitlab-wildcard-tls-ca -ojsonpath='{.data.cfssl_ca}' | base64 --decode > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.pem
     openssl x509 -in $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.pem -inform PEM -out $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt
-    $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt
     if [ -d /usr/share/ca-certificates/gitlab ]; then
-        rm -Rf /usr/share/ca-certificates/gitlab
+        sudo rm -Rf /usr/share/ca-certificates/gitlab
     fi
     sudo mkdir /usr/share/ca-certificates/gitlab
     sudo cp $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt /usr/share/ca-certificates/gitlab/gitlab.local.nip.io.ca.crt
@@ -72,7 +71,7 @@ then
     MINIKUBE_IP=$(minikube ip)
     sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins_yaml.yml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
     kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
-    rn $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
 fi
 
 if [[ $INSTALL_AGENTS = "true" ]]
