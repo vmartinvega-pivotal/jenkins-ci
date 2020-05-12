@@ -44,6 +44,8 @@ RUN /usr/local/bin/install-plugins.sh pipeline-github-lib
 RUN /usr/local/bin/install-plugins.sh ssh-slaves
 RUN /usr/local/bin/install-plugins.sh subversion
 RUN /usr/local/bin/install-plugins.sh ws-cleanup
+RUN /usr/local/bin/install-plugins.sh configuration-as-code
+RUN /usr/local/bin/install-plugins.sh configuration-as-code-support
 
 # install Maven
 USER root

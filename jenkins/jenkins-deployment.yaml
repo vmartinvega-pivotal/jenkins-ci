@@ -21,6 +21,8 @@ spec:
           env:
             - name: JAVA_OPTS
               value: -Djenkins.install.runSetupWizard=false
+            - name: CASC_JENKINS_CONFIG
+              value: "/hosthome/vicente/Documents/Projects/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml"
           ports:
             - name: http-port
               containerPort: 8080
@@ -38,3 +40,31 @@ spec:
           hostPath:
             path: /hosthome/vicente/Documents/Projects
             type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32000
+      targetPort: 8080
+  selector:
+    app: jenkins
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: jenkins.local.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: jenkins
+          servicePort: 80

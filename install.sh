@@ -1,6 +1,6 @@
 INSTALL_JENKINS="true"
 INSTALL_REGISTRY="false"
-INSTALL_GITLAB="true"
+INSTALL_GITLAB="false"
 INSTALL_AGENTS="false"
 
 # Gets the path for the different certificates to later change those values to embed certificates
@@ -45,9 +45,9 @@ then
     helm repo update
     # Get minikube ip
     MINIKUBE_IP=$(minikube ip)
-    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
-    helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file gitlab gitlab/gitlab
-    rm $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/output.file
+    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file
+    helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file gitlab gitlab/gitlab
+    rm $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file
     minikube addons enable ingress
     echo "Gitlab root password: "
     kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
@@ -64,14 +64,15 @@ fi
 
 if [[ $INSTALL_JENKINS = "true" ]]
 then
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-master && docker build -t c3alm-sgt/cloudbees-core-mm-sgt ."
-    kubectl create serviceaccount jenkins
-    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-secrets.yaml
-    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-config-map.yaml
-    MINIKUBE_IP=$(minikube ip)
-    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins_yaml.yml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
-    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
-    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins ."
+    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-deployment.yaml
+    #kubectl create serviceaccount jenkins
+    #kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-secrets.yaml
+    #kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-k8s-configuration/pre/sgt-config-map.yaml
+    #MINIKUBE_IP=$(minikube ip)
+    #sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins_yaml.yml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    #kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    #rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
 fi
 
 if [[ $INSTALL_AGENTS = "true" ]]
