@@ -1,3 +1,12 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - file:
+          fileName: "config"
+          id: "kubeconfig"
+          scope: GLOBAL
+          secretBytes: "{KUBECONFIG_FILE_BYTES}"
 jenkins:
   agentProtocols:
   - "Diagnostic-Ping"
@@ -5,17 +14,15 @@ jenkins:
   - "OperationsCenter2"
   - "Ping"
 
-jenkins:  
   clouds:
     - kubernetes:
-        name: "advanced-k8s-config"
-        serverUrl: "https://avanced-k8s-config:443"
-        serverCertificate: "serverCertificate"
+        name: "kubernetes"
+        serverUrl: "KUBERNETES_URL"
         skipTlsVerify: true
-        credentialsId: "advanced-k8s-credentials"
+        credentialsId: "kubeconfig"
         namespace: "default"
-        jenkinsUrl: "http://jenkins/"
-        jenkinsTunnel: "jenkinsTunnel"
+        jenkinsUrl: "JENKINS_URL"
+        jenkinsTunnel: "JENKINS_TUNNEL"
         containerCapStr: 42
         maxRequestsPerHostStr: 64
         retentionTimeout: 5
