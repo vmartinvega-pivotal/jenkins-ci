@@ -22,24 +22,39 @@ spec:
             - name: JAVA_OPTS
               value: -Djenkins.install.runSetupWizard=false
             - name: CASC_JENKINS_CONFIG
-              value: "/hosthome/vicente/Documents/Projects/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml"
+              value: "/hosthome/vicente/Projects/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml"
           ports:
             - name: http-port
               containerPort: 8080
             - name: jnlp-port
               containerPort: 50000
-          volumeMounts:
+           env: 
+           env:
+             - name: GITLAB_PASSWORD
+               valueFrom:
+               secretKeyRef:
+                 name: jenkins_secrets
+                 key: gitlabsecret
+           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
             - name: projects
-              mountPath: /hosthome/vicente/Documents/Projects
+              mountPath: /hosthome/vicente/Projects
       volumes:
         - name: jenkins-home
           emptyDir: {}
         - name: projects
           hostPath:
-            path: /hosthome/vicente/Documents/Projects
+            path: /hosthome/vicente/Projects
             type: Directory
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jenkins_secrets
+type: Opaque
+data:
+  gitlabsecret: Y2hhbmdlbWUK
 ---
 apiVersion: v1
 kind: Service

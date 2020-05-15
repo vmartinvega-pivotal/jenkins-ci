@@ -1,7 +1,7 @@
 INSTALL_JENKINS="true"
 INSTALL_REGISTRY="false"
 INSTALL_GITLAB="false"
-INSTALL_AGENTS="false"
+INSTALL_AGENTS="true"
 
 # Gets the path for the different certificates to later change those values to embed certificates
 # inside kubeconfig
@@ -19,8 +19,8 @@ kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --em
 
 # Configure minikube
 TEMP_FOLDER=/minikube-install
-HOST_PROJECTS_FOLDER=/home/vicente/Documents/Projects
-MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Documents/Projects
+HOST_PROJECTS_FOLDER=/home/vicente/Projects
+MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
 
 rm -Rf $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
 mkdir $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
