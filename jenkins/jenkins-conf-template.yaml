@@ -7,6 +7,12 @@ credentials:
           id: "kubeconfig"
           scope: GLOBAL
           secretBytes: "{KUBECONFIG_FILE_BYTES}"
+      - usernamePassword:
+          scope: GLOBAL
+          id: "gitlab"
+          username: "root"
+          password: ${GITLAB_PASSWORD}
+          description: "Username/Password for gitlab"
 jenkins:
   agentProtocols:
   - "Diagnostic-Ping"
@@ -30,54 +36,46 @@ jenkins:
         readTimeout: 20
 
         templates:
-          - name: "test"
-            serviceAccount: "serviceAccount"
-            instanceCap: 1234
-            idleMinutes: 0
-            label: "label"
-            volumes:
-              - hostPathVolume:
-                  mountPath: "mountPath"
-                  hostPath: "hostPath"
-            containers:
-              - name: "name"
-                image: "image"
-                privileged: true
-                alwaysPullImage: true
-                command: "command"
-                args: "args"
-                workingDir: "workingDir"
-                ttyEnabled: true
-                resourceRequestCpu: "resourceRequestCpu"
-                resourceRequestMemory: "resourceRequestMemory"
-                resourceLimitCpu: "resourceLimitCpu"
-                resourceLimitMemory: "resourceLimitMemory"
-            imagePullSecrets:
-              - name: "imagePullSecrets"
-
-            envVars:
+          - containers:
+            - args: "^${computer.jnlpmac} ^${computer.name}"
+              command: "jenkins-slave"
+              envVars:
               - envVar:
-                  key: "FOO"
-                  value: "BAR"
+                  key: "JAVA_OPTS"
+                  value: "-Xmx700M"
+              image: "c3alm-sgt/jnlp-agent:latest"
+              livenessProbe:
+                execArgs: "java -version"
+                failureThreshold: 0
+                initialDelaySeconds: 10
+                periodSeconds: 0
+                successThreshold: 0
+                timeoutSeconds: 0
+              name: "jnlp"
+              resourceLimitCpu: "500m"
+              resourceLimitMemory: "1024Mi"
+              resourceRequestCpu: "250m"
+              resourceRequestMemory: "128Mi"
+              ttyEnabled: true
+            label: "base"
+            name: "jnlp"
+            nodeUsageMode: NORMAL
+            slaveConnectTimeout: 60
+            slaveConnectTimeoutStr: "60"
+            workspaceVolume:
+              emptyDirWorkspaceVolume:
+                memory: false
+            yaml: "apiVersion: v1\nkind: Pod\nspec:\n  securityContext:\n    runAsUser:\
+              \ 1000" 
 
-          - name: "k8s-slave"
-            namespace: "default"
-            label: "linux-x86_64"
-            nodeUsageMode: EXCLUSIVE
-            containers:
-              - name: "jnlp"
-                image: "jenkinsci/jnlp-slave:latest"
-                alwaysPullImage: true
-                workingDir: "/home/jenkins"
-                ttyEnabled: true
-                resourceRequestCpu: "500m"
-                resourceLimitCpu: "1000m"
-                resourceRequestMemory: "1Gi"
-                resourceLimitMemory: "2Gi"
-            volumes:
-              - emptyDirVolume:
-                  memory: false
-                  mountPath: "/tmp"
-            idleMinutes: "1"
-            activeDeadlineSeconds: "120"
-            slaveConnectTimeout: "1000"
+unclassified:
+  globalLibraries:
+    libraries:
+    - defaultVersion: "v1.5.2"
+      includeInChangesets: false
+      name: "global-alm-pipeline-library"
+      retriever:
+        modernSCM:
+          scm:
+            git:
+              remote: "http://192.168.99.1/root/pipeline-library"
