@@ -1,7 +1,9 @@
 INSTALL_JENKINS="true"
-INSTALL_REGISTRY="false"
-INSTALL_GITLAB="false"
-INSTALL_AGENTS="true"
+INSTALL_AGENTS="false"
+
+minikube delete
+
+minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=30g
 
 # Gets the path for the different certificates to later change those values to embed certificates
 # inside kubeconfig
@@ -18,50 +20,8 @@ kubectl config set-credentials minikube --client-key=$MINIKUBE_CLIENT_KEY  --emb
 kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --embed-certs=true
 
 # Configure minikube
-TEMP_FOLDER=/minikube-install
 HOST_PROJECTS_FOLDER=/home/vicente/Projects
 MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
-
-rm -Rf $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
-mkdir $HOST_PROJECTS_FOLDER/$TEMP_FOLDER
-
-cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER && git clone https://github.com/kameshsampath/minikube-helpers 
-
-if [[ $INSTALL_REGISTRY = "true" ]]
-then
-    minikube addons enable registry
-    cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/minikube-helpers/registry && \
-    kubectl apply -n kube-system \
-        -f registry-aliases-config.yaml \
-        -f node-etc-hosts-update.yaml \
-        -f patch-coredns-job.yaml
-    CLUSTER_IP_REGISTRY=$(kubectl -n kube-system get svc registry -o jsonpath='{.spec.clusterIP}')
-fi
-
-cd $HOST_PROJECTS_FOLDER/$TEMP_FOLDER && git clone https://github.com/vmartinvega-pivotal/jenkins-pipeline-k8s-test
-
-if [[ $INSTALL_GITLAB = "true" ]]
-then
-    helm repo add gitlab https://charts.gitlab.io/
-    helm repo update
-    # Get minikube ip
-    MINIKUBE_IP=$(minikube ip)
-    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file
-    helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file gitlab gitlab/gitlab
-    rm $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab/output.file
-    minikube addons enable ingress
-    echo "Gitlab root password: "
-    kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
-    kubectl get secret gitlab-wildcard-tls-ca -ojsonpath='{.data.cfssl_ca}' | base64 --decode > $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.pem
-    openssl x509 -in $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.pem -inform PEM -out $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt
-    if [ -d /usr/share/ca-certificates/gitlab ]; then
-        sudo rm -Rf /usr/share/ca-certificates/gitlab
-    fi
-    sudo mkdir /usr/share/ca-certificates/gitlab
-    sudo cp $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt /usr/share/ca-certificates/gitlab/gitlab.local.nip.io.ca.crt
-    sudo dpkg-reconfigure ca-certificates
-    sudo update-ca-certificates
-fi
 
 if [[ $INSTALL_JENKINS = "true" ]]
 then
