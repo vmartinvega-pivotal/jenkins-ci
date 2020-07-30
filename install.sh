@@ -1,5 +1,5 @@
 INSTALL_JENKINS="true"
-INSTALL_AGENTS="false"
+INSTALL_AGENTS="true"
 
 minikube delete
 
@@ -34,6 +34,11 @@ then
     sed "s/JENKINS_TUNNEL/http:\/\/$INTERNAL_IP:50000/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file
     sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file
     sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml
+
+    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file
+    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file
+    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml
 fi
 
 if [[ $INSTALL_AGENTS = "true" ]]
