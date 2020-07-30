@@ -1,4 +1,3 @@
-INSTALL_JENKINS="true"
 INSTALL_AGENTS="true"
 
 minikube delete
@@ -23,24 +22,6 @@ kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --em
 HOST_PROJECTS_FOLDER=/home/vicente/Projects
 MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
 
-if [[ $INSTALL_JENKINS = "true" ]]
-then
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins ."
-    kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-deployment.yaml
-    ./kubernetes/wait-until-pods-ready.sh 60 5
-    INTERNAL_IP=$(kubectl get pod -o jsonpath='{.items[0].status.podIP}')
-    KUBECONFIG_FILE_BYTES=$(cat ${HOME}/.kube/config | base64 --wrap=0)
-    sed "s/JENKINS_URL/http:\/\/$INTERNAL_IP:8080/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
-    sed "s/JENKINS_TUNNEL/http:\/\/$INTERNAL_IP:50000/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file
-    sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file
-    sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml
-
-    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
-    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output1.file
-    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output2.file
-    rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml
-fi
-
 if [[ $INSTALL_AGENTS = "true" ]]
 then
     JNLP_AGENT_FOLDER=jnlp-agent
@@ -49,3 +30,14 @@ then
     MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
     minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
 fi
+
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins && docker build -t c3alm-sgt/jenkins ."
+kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-deployment.yaml
+./kubernetes/wait-until-pods-ready.sh 60 5
+KUBECONFIG_FILE_BYTES=$(cat ${HOME}/.kube/config | base64 --wrap=0)
+sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml
+
+rm $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/jenkins/output.file
+
+echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000"

@@ -27,8 +27,8 @@ jenkins:
         skipTlsVerify: true
         credentialsId: "kubeconfig"
         namespace: "default"
-        jenkinsUrl: "JENKINS_URL"
-        jenkinsTunnel: "JENKINS_TUNNEL"
+        jenkinsUrl: "http://jenkins-tcp-port:8080"
+        jenkinsTunnel: "jenkins-jnlp-port:50000"
         containerCapStr: 42
         maxRequestsPerHostStr: 64
         retentionTimeout: 5
