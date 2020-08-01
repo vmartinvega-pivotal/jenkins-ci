@@ -1,1 +1,3 @@
 gitlab_external_url: "http://host.minikube.internal/"
+virtualbox_user: vbox
+virtualbox_user_pw: changeme

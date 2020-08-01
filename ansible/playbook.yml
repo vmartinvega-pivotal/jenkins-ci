@@ -8,4 +8,5 @@
       - role: '/home/vicente/.ansible/roles/gantsign.visual-studio-code'     
       - role: '/home/vicente/.ansible/roles/pixelart.chrome'
       - role: '/home/vicente/.ansible/roles/githubixx.kubectl'
+      - role: '/home/vicente/.ansible/roles/stefanhorning.virtualbox'
       
