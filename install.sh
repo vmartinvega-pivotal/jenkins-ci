@@ -18,17 +18,16 @@ kubectl config set-credentials minikube --client-certificate=$MINIKUBE_CLIENT_CE
 kubectl config set-credentials minikube --client-key=$MINIKUBE_CLIENT_KEY  --embed-certs=true
 kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --embed-certs=true
 
-# Configure minikube
 HOST_PROJECTS_FOLDER=/home/vicente/Projects
 MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
 
 if [[ $INSTALL_AGENTS = "true" ]]
 then
     JNLP_AGENT_FOLDER=jnlp-agent
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
 
     MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
 fi
 
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t c3alm-sgt/jenkins ."
