@@ -48,6 +48,8 @@ sudo apt-get install git
 
 * Clone repo
 ```
+mkdir /home/vicente/Projects
+cd /home/vicente/Projects
 git clone https://github.com/vmartinvega-pivotal/jenkins-ci
 ```
 
