@@ -22,7 +22,7 @@ spec:
             - name: JAVA_OPTS
               value: -Djenkins.install.runSetupWizard=false
             - name: CASC_JENKINS_CONFIG
-              value: "/hosthome/vicente/Projects/jenkins-pipeline-k8s-test/jenkins/jenkins-conf.yaml"
+              value: "/hosthome/vicente/Projects/jenkins-ci/jenkins/jenkins-conf.yaml"
             - name: GITLAB_PASSWORD
               valueFrom:
                 secretKeyRef:

@@ -8,6 +8,14 @@ chmod +x minikube
 sudo mv minikube /usr/local/bin/
 ```
 
+* Install helm
+```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+rm get_helm.sh
+```
+
 * Install virtuabox
 ```
 sudo apt-get install virtualbox
@@ -25,19 +33,41 @@ sudo apt-get install keepass2
 sudo passwd root
 sudo apt update
 sudo apt install ansible
+```
+
+* Update unsible hosts
+```
 sudo nano /etc/ansible/hosts
 127.0.0.1 ansible_connection=local
+```
+
+* Install git
+```
+sudo apt-get install git
+```
+
+* Clone repo
+```
 git clone https://github.com/vmartinvega-pivotal/jenkins-ci
+```
+
+* Install ansible roles
+```
 ansible-galaxy install geerlingguy.gitlab
 ansible-galaxy install geerlingguy.docker
 ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
+ansible-galaxy install geerlingguy.kubernetes
+ansible-galaxy install geerlingguy.rabbitmq
 git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
-ansible-galaxy install geerlingguy.git
-ansible-playbook ansible/playbook.yml  --become
 ```
 
-* Install Jenkins and agents
+* Execute playbook
+```
+ansible-playbook ansible/playbook.yml  --become --extra-vars "ansible_sudo_pass=yourPassword"
+```
+
+* Install Jenkins, gitlab and agents
 ```
 ./install.sh
 ```

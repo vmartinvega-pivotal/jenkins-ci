@@ -1,4 +1,5 @@
 INSTALL_AGENTS="true"
+INSTALL_GITLAB="true"
 
 minikube delete
 
@@ -39,4 +40,29 @@ sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jen
 
 rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
 
+if [[ $INSTALL_GITLAB = "true" ]]
+then
+    helm repo add gitlab https://charts.gitlab.io/
+    helm repo update
+    # Get minikube ip
+    MINIKUBE_IP=$(minikube ip)
+    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
+    helm install -f $HOST_PROJECTS_FOLDER/$TEMP_FOLDER/jenkins-ci/gitlab/output.file gitlab gitlab/gitlab
+    rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
+    minikube addons enable ingress
+    echo "Gitlab root password: "
+    kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
+    kubectl get secret gitlab-wildcard-tls-ca -ojsonpath='{.data.cfssl_ca}' | base64 --decode > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.pem
+    openssl x509 -in $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.pem -inform PEM -out $HOST_PROJECTS_FOLDER/jenkins-pipeline-k8s-test/gitlab.local.nip.io.ca.crt
+    if [ -d /usr/share/ca-certificates/gitlab ]; then
+        sudo rm -Rf /usr/share/ca-certificates/gitlab
+    fi
+    sudo mkdir /usr/share/ca-certificates/gitlab
+    sudo cp $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.crt /usr/share/ca-certificates/gitlab/gitlab.local.nip.io.ca.crt
+    sudo dpkg-reconfigure ca-certificates
+    sudo update-ca-certificates
+fi
+
+echo ""
+echo ""
 echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000"
