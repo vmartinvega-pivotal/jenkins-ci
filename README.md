@@ -61,8 +61,12 @@ ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
 ansible-galaxy install geerlingguy.kubernetes
 ansible-galaxy install geerlingguy.rabbitmq
+ansible-galaxy install geerlingguy.elasticsearch
+ansible-galaxy install geerlingguy.kibana
 git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
 ```
+transport.host: localhost
+transport.tcp.port: 9300
 
 * Execute playbook
 ```
