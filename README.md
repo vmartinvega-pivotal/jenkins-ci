@@ -55,14 +55,10 @@ git clone https://github.com/vmartinvega-pivotal/jenkins-ci
 
 * Install ansible roles
 ```
-ansible-galaxy install geerlingguy.gitlab
 ansible-galaxy install geerlingguy.docker
 ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
 ansible-galaxy install geerlingguy.kubernetes
-ansible-galaxy install geerlingguy.rabbitmq
-ansible-galaxy install geerlingguy.elasticsearch
-ansible-galaxy install geerlingguy.kibana
 git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
 ```
 transport.host: localhost
@@ -73,7 +69,11 @@ transport.tcp.port: 9300
 ansible-playbook ansible/playbook.yml  --become --extra-vars "ansible_sudo_pass=yourPassword"
 ```
 
-* Install Jenkins, gitlab and agents
+* Install Jenkins, agents and logging
 ```
 ./install.sh
+```
+
+```
+kubectl port-forward kibana-6c9fb4b5b7-plbg2 5601:5601 --namespace=kube-logging
 ```

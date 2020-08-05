@@ -1,5 +1,5 @@
 INSTALL_AGENTS="true"
-INSTALL_GITLAB="true"
+INSTALL_GITLAB="false"
 
 minikube delete
 
@@ -58,12 +58,17 @@ then
     rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.crt 
     sudo dpkg-reconfigure ca-certificates
     sudo update-ca-certificates
+    echo "Gitlab root password: "
+    kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 fi
+
+kubectl create -f $HOST_PROJECTS_FOLDER/logging/namespace.yaml
+kubectl create -f $HOST_PROJECTS_FOLDER/logging/elasticsearch.yaml
+kubectl create -f $HOST_PROJECTS_FOLDER/logging/kibana.yaml
+kubectl create -f $HOST_PROJECTS_FOLDER/logging/fluentd.yaml
 
 echo ""
 echo ""
 echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000"
 echo ""
 echo ""
-echo "Gitlab root password: "
-kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
