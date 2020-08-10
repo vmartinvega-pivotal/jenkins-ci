@@ -76,6 +76,8 @@ fi
 #helm install zookeeper bitnami/zookeeper --set replicaCount=1 --set auth.enabled=false --set allowAnonymousLogin=true
 #helm install kafka bitnami/kafka --set zookeeper.enabled=false --set replicaCount=1 --set externalZookeeper.servers=zookeeper.default.svc.cluster.local
 
+kubectl create -f $HOST_PROJECTS_FOLDER/spring-boot-echo-service/kubernetes/deployment.yaml
+
 echo ""
 echo ""
 echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000"
