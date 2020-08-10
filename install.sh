@@ -31,6 +31,8 @@ then
     minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
 fi
 
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-daemonset-http && docker build -t vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http ."
+
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t c3alm-sgt/jenkins ."
 kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
 ./kubernetes/wait-until-pods-ready.sh 60 5
@@ -62,10 +64,17 @@ then
     kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 fi
 
-kubectl create -f $HOST_PROJECTS_FOLDER/logging/namespace.yaml
-kubectl create -f $HOST_PROJECTS_FOLDER/logging/elasticsearch.yaml
-kubectl create -f $HOST_PROJECTS_FOLDER/logging/kibana.yaml
-kubectl create -f $HOST_PROJECTS_FOLDER/logging/fluentd.yaml
+#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/namespace.yaml
+#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/elasticsearch.yaml
+#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/kibana.yaml
+
+#kubectl create configmap fluentd-conf --from-file=$HOST_PROJECTS_FOLDER/jenkins-ci/logging/kubernetes.conf --namespace=kube-logging
+
+#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/fluentd.yaml
+
+#helm repo add bitnami https://charts.bitnami.com/bitnami
+#helm install zookeeper bitnami/zookeeper --set replicaCount=1 --set auth.enabled=false --set allowAnonymousLogin=true
+#helm install kafka bitnami/kafka --set zookeeper.enabled=false --set replicaCount=1 --set externalZookeeper.servers=zookeeper.default.svc.cluster.local
 
 echo ""
 echo ""

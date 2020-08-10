@@ -1,3 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jenkins-storage
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,6 +26,20 @@ spec:
         app: jenkins
     spec:
       containers:
+        - name: fluentd
+          image: vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http
+          env:
+            - name:  JENKINS_PRODUCDER_URL
+              value: "http://spring-boot-echo-service"
+          resources:
+            limits:
+              memory: 400Mi
+            requests:
+              cpu: 200m
+              memory: 400Mi
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
         - name: jenkins
           image: c3alm-sgt/jenkins:latest
           imagePullPolicy: IfNotPresent
@@ -40,7 +65,8 @@ spec:
               mountPath: /hosthome/vicente/Projects
       volumes:
         - name: jenkins-home
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: jenkins-storage
         - name: projects
           hostPath:
             path: /hosthome/vicente/Projects
