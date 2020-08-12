@@ -10,10 +10,15 @@ global:
   ingress:
     configureCertmanager: false
     class: "nginx"
+    tls:
+      enabled:  false
   hosts:
     domain: local.nip.io
     externalIP: MINIKUBE_IP
-  # Disable Rails bootsnap cache (temporary)
+    https: false
+  gitlab:
+    https: false
+    # Disable Rails bootsnap cache (temporary)
   rails:
     bootsnap:
       enabled: false

@@ -1,6 +1,3 @@
-INSTALL_AGENTS="true"
-INSTALL_GITLAB="false"
-
 minikube delete
 
 minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=30g
@@ -22,59 +19,36 @@ kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --em
 export HOST_PROJECTS_FOLDER=/home/vicente/Projects
 export MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
 
-if [[ $INSTALL_AGENTS = "true" ]]
-then
-    export JNLP_AGENT_FOLDER=jnlp-agent
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
+# Install gitlab
+helm repo add gitlab https://charts.gitlab.io/
+helm repo update
+sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
+helm install -f $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file gitlab gitlab/gitlab
+rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
+minikube addons enable ingress
 
-    export MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
-    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
-fi
+# Compile the agents
+export JNLP_AGENT_FOLDER=jnlp-agent
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
 
+export MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
+
+# Build fluentd
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-daemonset-http && docker build -t vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http ."
 
+# Build jenkins
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t c3alm-sgt/jenkins ."
 kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
 ./kubernetes/wait-until-pods-ready.sh 60 5
 KUBECONFIG_FILE_BYTES=$(cat ${HOME}/.kube/config | base64 --wrap=0)
 sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
-sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf.yaml
+sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file
+GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo)
+sed "s/GITLAB_PASSWORD/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf.yaml
 
 rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
-
-if [[ $INSTALL_GITLAB = "true" ]]
-then
-    helm repo add gitlab https://charts.gitlab.io/
-    helm repo update
-    sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
-    helm install -f $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file gitlab gitlab/gitlab
-    rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
-    minikube addons enable ingress
-    kubectl get secret gitlab-wildcard-tls-ca -ojsonpath='{.data.cfssl_ca}' | base64 --decode > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.pem
-    openssl x509 -in $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.pem -inform PEM -out $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.crt
-    if [ -d /usr/share/ca-certificates/gitlab ]; then
-        sudo rm -Rf /usr/share/ca-certificates/gitlab
-    fi
-    sudo mkdir /usr/share/ca-certificates/gitlab
-    sudo cp $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.crt /usr/share/ca-certificates/gitlab/gitlab.local.nip.io.ca.crt
-    rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab.local.nip.io.ca.crt 
-    sudo dpkg-reconfigure ca-certificates
-    sudo update-ca-certificates
-    echo "Gitlab root password: "
-    kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
-fi
-
-#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/namespace.yaml
-#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/elasticsearch.yaml
-#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/kibana.yaml
-
-#kubectl create configmap fluentd-conf --from-file=$HOST_PROJECTS_FOLDER/jenkins-ci/logging/kubernetes.conf --namespace=kube-logging
-
-#kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/logging/fluentd.yaml
-
-#helm repo add bitnami https://charts.bitnami.com/bitnami
-#helm install zookeeper bitnami/zookeeper --set replicaCount=1 --set auth.enabled=false --set allowAnonymousLogin=true
-#helm install kafka bitnami/kafka --set zookeeper.enabled=false --set replicaCount=1 --set externalZookeeper.servers=zookeeper.default.svc.cluster.local
+rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file
 
 kubectl create -f $HOST_PROJECTS_FOLDER/spring-boot-echo-service/kubernetes/deployment.yaml
 

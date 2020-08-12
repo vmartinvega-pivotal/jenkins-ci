@@ -28,6 +28,22 @@ ENV JENKINS_AGENT_HOME=${JENKINS_AGENT_HOME} \
 
 USER root
 
+# Installs certificates && common tools
+RUN  echo "Installing alm certificates..." \
+  && dpkg-reconfigure ca-certificates \
+  && update-ca-certificates \
+  && echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" >> /etc/apt/apt.conf \
+  && apt-get -q -o Acquire::Check-Valid-Until=false update && apt-get upgrade -y \
+  && DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
+  libgdiplus libc6-dev build-essential sshpass unzip telnet zip jq \
+  && apt-get -q autoclean && apt-get -q --purge -y autoremove && rm -rf /var/lib/apt/lists/* \
+  && curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o /usr/bin/yq \
+  && chmod +x /usr/bin/yq \
+  && git config --system http.sslCAPath /usr/local/share/ca-certificates/gitlab \
+  && mkdir -p "${JENKINS_AGENT_HOME}/.ssh" \
+  && echo "Host *\n    StrictHostKeyChecking no" >> "${JENKINS_AGENT_HOME}/.ssh/config" \
+  && chown -R jenkins:jenkins "${JENKINS_AGENT_HOME}/.ssh/" 
+
 # Installs Sonnar Runner (Sonar <= 5.7)
 RUN echo "Installing Sonnar Runner... " \
   && cd /usr/share \
@@ -60,7 +76,7 @@ RUN echo "Installing Kiuwan Local Analyzer (KLA)..." \
   && echo "Changing Kiuwan directory (${AGENT_HOME}) owner..." \
   && chown -R jenkins:jenkins ${AGENT_HOME}
   
-  RUN mkdir -p ${SONAR_USER_HOME} \
+RUN mkdir -p ${SONAR_USER_HOME} \
   && chmod -R 777 ${SONAR_USER_HOME} 
 
 USER jenkins:jenkins

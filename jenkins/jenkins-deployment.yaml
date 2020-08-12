@@ -1,3 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+data:
+  .gitconfig: "[user]\n\temail = vicente.martin.vega@gmail.com\n\tname = vicente\n[http]\n\tsslVerify
+    = false\n"
+metadata:
+  name: jenkins-git-config
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -63,6 +71,9 @@ spec:
               mountPath: /var/jenkins_home
             - name: projects
               mountPath: /hosthome/vicente/Projects
+            - name: jenkins-git-config-volume
+              mountPath: /var/jenkins_home/.gitconfig
+              subPath: .gitconfig
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
@@ -71,6 +82,12 @@ spec:
           hostPath:
             path: /hosthome/vicente/Projects
             type: Directory
+        - name: jenkins-git-config-volume
+          configMap:
+            name: jenkins-git-config
+            items:
+            - key: .gitconfig
+              path: .gitconfig
 ---
 apiVersion: v1
 kind: Secret

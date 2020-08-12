@@ -11,7 +11,7 @@ credentials:
           scope: GLOBAL
           id: "gitlab"
           username: "root"
-          password: ${GITLAB_PASSWORD}
+          password: "GITLAB_PASSWORD"
           description: "Username/Password for gitlab"
 jenkins:
   agentProtocols:
