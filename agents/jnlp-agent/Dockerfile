@@ -1,19 +1,17 @@
 FROM jenkinsci/jnlp-slave:3.40-1
 
-ARG AGENT_VERSION=c3alm-sgt/jnlp-agent:latest
+ARG AGENT_VERSION=vmartinvega/jnlp-agent:latest
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY=$HTTP_PROXY
 ARG NO_PROXY=.corp
 
 ARG JENKINS_AGENT_HOME=/home/jenkins
-ARG DOCKER_SLAVE_TAG=c3alm-sgt/jnlp-agent:latest
+ARG DOCKER_SLAVE_TAG=vmartinvega/jnlp-agent:latest
 
 LABEL ALM_DESCRIPTION="A basic Jenkins JNLP Slave docker image" \
     ALM_COMPONENTS="OpenJDK JRE8, sshpass, git, curl, wget, unzip" \
-    ALM_IMAGE_VERSION="v1" \
-    maintainer="ALM Multicloud <alm-multicloud@gruposantander.com>"
-
+    ALM_IMAGE_VERSION="v1"
 
 ENV JENKINS_AGENT_HOME=${JENKINS_AGENT_HOME} \
     GIT_SSL_NO_VERIFY=1 \
@@ -29,20 +27,20 @@ ENV JENKINS_AGENT_HOME=${JENKINS_AGENT_HOME} \
 USER root
 
 # Installs certificates && common tools
-RUN  echo "Installing alm certificates..." \
-  && dpkg-reconfigure ca-certificates \
-  && update-ca-certificates \
-  && echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" >> /etc/apt/apt.conf \
-  && apt-get -q -o Acquire::Check-Valid-Until=false update && apt-get upgrade -y \
-  && DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
-  libgdiplus libc6-dev build-essential sshpass unzip telnet zip jq \
-  && apt-get -q autoclean && apt-get -q --purge -y autoremove && rm -rf /var/lib/apt/lists/* \
-  && curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o /usr/bin/yq \
-  && chmod +x /usr/bin/yq \
-  && git config --system http.sslCAPath /usr/local/share/ca-certificates/gitlab \
-  && mkdir -p "${JENKINS_AGENT_HOME}/.ssh" \
-  && echo "Host *\n    StrictHostKeyChecking no" >> "${JENKINS_AGENT_HOME}/.ssh/config" \
-  && chown -R jenkins:jenkins "${JENKINS_AGENT_HOME}/.ssh/" 
+#RUN  echo "Installing alm certificates..." \
+#  && dpkg-reconfigure ca-certificates \
+#  && update-ca-certificates \
+#  && echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" >> /etc/apt/apt.conf \
+#  && apt-get -q -o Acquire::Check-Valid-Until=false update && apt-get upgrade -y \
+#  && DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
+#  libgdiplus libc6-dev build-essential sshpass unzip telnet zip jq \
+#  && apt-get -q autoclean && apt-get -q --purge -y autoremove && rm -rf /var/lib/apt/lists/* \
+#  && curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o /usr/bin/yq \
+#  && chmod +x /usr/bin/yq \
+#  && git config --system http.sslCAPath /usr/local/share/ca-certificates/gitlab \
+#  && mkdir -p "${JENKINS_AGENT_HOME}/.ssh" \
+#  && echo "Host *\n    StrictHostKeyChecking no" >> "${JENKINS_AGENT_HOME}/.ssh/config" \
+#  && chown -R jenkins:jenkins "${JENKINS_AGENT_HOME}/.ssh/" 
 
 # Installs Sonnar Runner (Sonar <= 5.7)
 RUN echo "Installing Sonnar Runner... " \

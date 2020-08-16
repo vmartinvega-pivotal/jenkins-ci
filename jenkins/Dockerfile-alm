@@ -1,0 +1,140 @@
+FROM jenkins/jenkins:latest
+
+# Distributed Builds plugins
+RUN /usr/local/bin/install-plugins.sh ssh-slaves
+
+# install Notifications and Publishing plugins
+RUN /usr/local/bin/install-plugins.sh email-ext
+RUN /usr/local/bin/install-plugins.sh mailer
+RUN /usr/local/bin/install-plugins.sh slack
+
+# Artifacts
+RUN /usr/local/bin/install-plugins.sh htmlpublisher
+
+# UI
+RUN /usr/local/bin/install-plugins.sh greenballs
+RUN /usr/local/bin/install-plugins.sh simple-theme-plugin
+
+# Scaling
+RUN /usr/local/bin/install-plugins.sh kubernetes
+
+# Recommended plugins
+RUN /usr/local/bin/install-plugins.sh ansicolor:0.6.2
+RUN /usr/local/bin/install-plugins.sh antisamy-markup-formatter:1.6
+RUN /usr/local/bin/install-plugins.sh authentication-tokens:1.3
+RUN /usr/local/bin/install-plugins.sh aws-credentials:1.27
+RUN /usr/local/bin/install-plugins.sh azure-app-service:1.0.0
+RUN /usr/local/bin/install-plugins.sh azure-commons:1.0.4
+RUN /usr/local/bin/install-plugins.sh azure-credentials:1.6.1
+RUN /usr/local/bin/install-plugins.sh basic-branch-build-strategies:1.3.2
+RUN /usr/local/bin/install-plugins.sh blueocean:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-autofavorite:1.2.4
+RUN /usr/local/bin/install-plugins.sh blueocean-bitbucket-pipeline:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-config:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-core-js:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-dashboard:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-display-url:2.3.0
+RUN /usr/local/bin/install-plugins.sh blueocean-events:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-git-pipeline:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-github-pipeline:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-i18n:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-jira:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-jwt:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-personalization:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-pipeline-api-impl:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-pipeline-editor:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-pipeline-scm-api:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-rest:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-rest-impl:1.21.0
+RUN /usr/local/bin/install-plugins.sh blueocean-web:1.21.0
+RUN /usr/local/bin/install-plugins.sh branch-api:2.5.6
+#RUN /usr/local/bin/install-plugins.sh cloudbees-assurance:2.138.0.13
+#RUN /usr/local/bin/install-plugins.sh cloudbees-aws-cli:1.5.10
+#RUN /usr/local/bin/install-plugins.sh cloudbees-bitbucket-branch-source:2.5.0
+#RUN /usr/local/bin/install-plugins.sh cloudbees-jsync-archiver:5.10
+#RUN /usr/local/bin/install-plugins.sh cloudbees-monitoring:2.9
+#RUN /usr/local/bin/install-plugins.sh cloudbees-nodes-plus:1.19
+#RUN /usr/local/bin/install-plugins.sh cloudbees-ssh-slaves:2.7
+#RUN /usr/local/bin/install-plugins.sh cloudbees-template:4.45
+#RUN /usr/local/bin/install-plugins.sh cloudbees-workflow-template:3.6
+RUN /usr/local/bin/install-plugins.sh command-launcher:1.4
+RUN /usr/local/bin/install-plugins.sh config-file-provider:3.6.3
+RUN /usr/local/bin/install-plugins.sh configuration-as-code:1.40
+RUN /usr/local/bin/install-plugins.sh configuration-as-code-support:1.18
+RUN /usr/local/bin/install-plugins.sh credentials:2.3.7
+RUN /usr/local/bin/install-plugins.sh credentials-binding:1.23
+RUN /usr/local/bin/install-plugins.sh display-url-api:2.3.2
+RUN /usr/local/bin/install-plugins.sh docker-workflow:1.21
+RUN /usr/local/bin/install-plugins.sh email-ext:2.68
+RUN /usr/local/bin/install-plugins.sh external-monitor-job:1.7
+RUN /usr/local/bin/install-plugins.sh favorite:2.3.2
+RUN /usr/local/bin/install-plugins.sh git:4.0.0
+RUN /usr/local/bin/install-plugins.sh git-client:3.0.0
+RUN /usr/local/bin/install-plugins.sh git-server:1.9
+RUN /usr/local/bin/install-plugins.sh github:1.29.4
+RUN /usr/local/bin/install-plugins.sh github-api:1.95
+RUN /usr/local/bin/install-plugins.sh github-branch-source:2.5.8
+RUN /usr/local/bin/install-plugins.sh gitlab-plugin:1.5.13
+RUN /usr/local/bin/install-plugins.sh greenballs:1.15
+RUN /usr/local/bin/install-plugins.sh handlebars:1.1.1
+RUN /usr/local/bin/install-plugins.sh handy-uri-templates-2-api:2.1.8-1.0
+RUN /usr/local/bin/install-plugins.sh htmlpublisher:1.21
+#RUN /usr/local/bin/install-plugins.sh infradna-backup:3.38.16
+RUN /usr/local/bin/install-plugins.sh jacoco:3.0.4
+RUN /usr/local/bin/install-plugins.sh jenkins-design-language:1.21.0
+#RUN /usr/local/bin/install-plugins.sh ira:3.0.11
+RUN /usr/local/bin/install-plugins.sh jsch:0.1.55.1
+RUN /usr/local/bin/install-plugins.sh kubernetes:1.22.6
+RUN /usr/local/bin/install-plugins.sh lockable-resources:2.7
+RUN /usr/local/bin/install-plugins.sh mask-passwords:2.12.0
+RUN /usr/local/bin/install-plugins.sh matrix-auth:2.5
+RUN /usr/local/bin/install-plugins.sh matrix-project:1.14
+RUN /usr/local/bin/install-plugins.sh mercurial:2.8
+RUN /usr/local/bin/install-plugins.sh momentjs:1.1.1
+RUN /usr/local/bin/install-plugins.sh node-iterator-api:1.5.0
+#RUN /usr/local/bin/install-plugins.sh operations-center-analytics-config:2.107.1.5
+#RUN /usr/local/bin/install-plugins.sh operations-center-analytics-reporter:2.107.1.5
+#RUN /usr/local/bin/install-plugins.sh operations-center-client:2.204.0.5
+#RUN /usr/local/bin/install-plugins.sh operations-center-cloud:2.204.0.5
+RUN /usr/local/bin/install-plugins.sh performance:3.17
+RUN /usr/local/bin/install-plugins.sh pipeline-build-step:2.11
+RUN /usr/local/bin/install-plugins.sh pipeline-graph-analysis:1.10
+RUN /usr/local/bin/install-plugins.sh pipeline-input-step:2.11
+RUN /usr/local/bin/install-plugins.sh pipeline-milestone-step:1.3.1
+RUN /usr/local/bin/install-plugins.sh pipeline-model-declarative-agent:1.1.1
+RUN /usr/local/bin/install-plugins.sh pipeline-model-definition:1.5.1
+RUN /usr/local/bin/install-plugins.sh pipeline-model-extensions:1.5.0
+RUN /usr/local/bin/install-plugins.sh pipeline-rest-api:2.12
+RUN /usr/local/bin/install-plugins.sh pipeline-stage-tags-metadata:1.5.1
+RUN /usr/local/bin/install-plugins.sh pipeline-stage-view:2.12
+RUN /usr/local/bin/install-plugins.sh pipeline-utility-steps:2.3.1
+RUN /usr/local/bin/install-plugins.sh pubsub-light:1.13
+RUN /usr/local/bin/install-plugins.sh resource-disposer:0.14
+RUN /usr/local/bin/install-plugins.sh script-security:1.68
+RUN /usr/local/bin/install-plugins.sh sonar:2.10
+RUN /usr/local/bin/install-plugins.sh sse-gateway:1.20
+RUN /usr/local/bin/install-plugins.sh ssh-agent:1.17
+RUN /usr/local/bin/install-plugins.sh ssh-credentials:1.18
+RUN /usr/local/bin/install-plugins.sh structs:1.20
+RUN /usr/local/bin/install-plugins.sh support-core:2.64
+RUN /usr/local/bin/install-plugins.sh timestamper:1.10
+#RUN /usr/local/bin/install-plugins.sh user-activity-monitoring:1.1.5
+RUN /usr/local/bin/install-plugins.sh windows-slaves:1.5
+RUN /usr/local/bin/install-plugins.sh workflow-aggregator:2.5
+RUN /usr/local/bin/install-plugins.sh workflow-api:2.38
+RUN /usr/local/bin/install-plugins.sh workflow-basic-steps:2.19
+RUN /usr/local/bin/install-plugins.sh workflow-cps:2.80
+#RUN /usr/local/bin/install-plugins.sh workflow-cps-checkpoint:2.7
+RUN /usr/local/bin/install-plugins.sh workflow-cps-global-lib:2.15
+RUN /usr/local/bin/install-plugins.sh workflow-durable-task-step:2.35
+RUN /usr/local/bin/install-plugins.sh workflow-job:2.36
+RUN /usr/local/bin/install-plugins.sh workflow-multibranch:2.21
+RUN /usr/local/bin/install-plugins.sh workflow-step-api:2.22
+RUN /usr/local/bin/install-plugins.sh workflow-support:3.3
+RUN /usr/local/bin/install-plugins.sh ws-cleanup:0.37
+
+RUN /usr/local/bin/install-plugins.sh pipeline-model-definition
+# install Maven
+USER root
+RUN apt-get update && apt-get install -y maven
+USER jenkins

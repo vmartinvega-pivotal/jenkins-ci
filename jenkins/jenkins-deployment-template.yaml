@@ -103,7 +103,6 @@ spec:
       containers:
         - name: watcher
           image: vmartinvega/spring-boot-watcher-service:latest
-          imagePullPolicy: IfNotPresent
           resources:
             limits:
               memory: 400Mi
@@ -115,7 +114,6 @@ spec:
               mountPath: /var/jenkins_home
         - name: fluentd
           image: vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http
-          imagePullPolicy: IfNotPresent
           env:
             - name:  JENKINS_PRODUCDER_URL
               value: "http://spring-boot-echo-service"
@@ -128,9 +126,6 @@ spec:
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
-            - name: config-volume
-              mountPath: /fluentd/etc/kubernetes.conf
-              subPath: kubernetes.conf
         - name: jenkins
           image: vmartinvega/jenkins:latest
           imagePullPolicy: IfNotPresent
@@ -164,12 +159,6 @@ spec:
         - name: jenkins-home
           persistentVolumeClaim:
             claimName: jenkins-storage
-        - name: config-volume
-          configMap:
-            name: fluentd-conf
-            items:
-            - key: kubernetes.conf
-              path: kubernetes.conf
         - name: projects
           hostPath:
             path: /hosthome/vicente/Projects
@@ -193,7 +182,7 @@ metadata:
   name: jenkins-secrets
 type: Opaque
 data:
-  gitlabsecret: MGdhbTcxdVh1Szg1S3MxY0tKdUlPR2FWZTFxdG5wOExKUlBONEtNcGxnQjhXVVNqMHVnSmp4ejhLc0FwTlZTOQ==
+  gitlabsecret: GITLAB_SECRET
 ---
 apiVersion: v1
 kind: Service

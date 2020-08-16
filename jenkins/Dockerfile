@@ -46,8 +46,6 @@ RUN /usr/local/bin/install-plugins.sh subversion
 RUN /usr/local/bin/install-plugins.sh ws-cleanup
 RUN /usr/local/bin/install-plugins.sh configuration-as-code
 RUN /usr/local/bin/install-plugins.sh configuration-as-code-support
-RUN /usr/local/bin/install-plugins.sh statistics-gatherer
-RUN /usr/local/bin/install-plugins.sh logstash
 
 # install Maven
 USER root

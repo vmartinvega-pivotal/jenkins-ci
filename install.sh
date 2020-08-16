@@ -29,26 +29,30 @@ minikube addons enable ingress
 
 # Compile the agents
 export JNLP_AGENT_FOLDER=jnlp-agent
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/jnlp-agent ."
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/jnlp-agent ."
 
 export MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t c3alm-sgt/maven-jnlp-agent ."
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/maven-jnlp-agent ."
 
 # Build fluentd
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-daemonset-http && docker build -t vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http ."
 
+# Build watcher
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/directory-watcher-service && docker build -t vmartinvega/spring-boot-watcher-service ."
+
 # Build jenkins
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t c3alm-sgt/jenkins ."
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t vmartinvega/jenkins ."
+GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' ; echo)
+sed "s/GITLAB_SECRET/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jjenkins-deployment.yaml
 kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
+
 ./kubernetes/wait-until-pods-ready.sh 60 5
 KUBECONFIG_FILE_BYTES=$(cat ${HOME}/.kube/config | base64 --wrap=0)
 sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
-sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file
+sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf.yaml
 GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo)
-sed "s/GITLAB_PASSWORD/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf.yaml
 
 rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
-rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output1.file
 
 kubectl create -f $HOST_PROJECTS_FOLDER/spring-boot-echo-service/kubernetes/deployment.yaml
 

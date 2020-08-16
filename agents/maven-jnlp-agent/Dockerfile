@@ -1,9 +1,9 @@
-FROM c3alm-sgt/jnlp-agent:latest
+FROM vmartinvega/jnlp-agent:latest
 
 ARG NO_PROXY=.corp
 ARG HTTP_PROXY
 ARG MVN_EXTENSION_URL
-ARG AGENT_VERSION=c3alm-sgt/maven-jnlp-agent:latest
+ARG AGENT_VERSION=vmartinvega/maven-jnlp-agent:latest
 ARG AGENT_IMAGE_VERSION=latest
 
 ENV MAVEN_HOME=/usr/share/maven \

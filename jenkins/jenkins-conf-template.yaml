@@ -11,7 +11,7 @@ credentials:
           scope: GLOBAL
           id: "gitlab"
           username: "root"
-          password: "GITLAB_PASSWORD"
+          password: "${GITLAB_PASSWORD}"
           description: "Username/Password for gitlab"
 jenkins:
   agentProtocols:
@@ -43,7 +43,7 @@ jenkins:
               - envVar:
                   key: "JAVA_OPTS"
                   value: "-Xmx700M"
-              image: "c3alm-sgt/jnlp-agent:latest"
+              image: "vmartinvega/jnlp-agent:latest"
               livenessProbe:
                 execArgs: "java -version"
                 failureThreshold: 0
@@ -71,11 +71,11 @@ jenkins:
 unclassified:
   globalLibraries:
     libraries:
-    - defaultVersion: "v1.5.2"
+    - defaultVersion: "v1.8.0"
       includeInChangesets: false
       name: "global-alm-pipeline-library"
       retriever:
         modernSCM:
           scm:
             git:
-              remote: "http://192.168.99.1/root/pipeline-library"
+              remote: "http://gitlab.local.nip.io/root/pipeline-library"
