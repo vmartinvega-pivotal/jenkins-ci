@@ -113,7 +113,7 @@ spec:
             - name: jenkins-home
               mountPath: /var/jenkins_home
         - name: fluentd
-          image: vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http
+          image: vmartinvega/fluentd-kubernetes-http:v1-debian
           env:
             - name:  JENKINS_PRODUCDER_URL
               value: "http://spring-boot-echo-service"

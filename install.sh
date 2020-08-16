@@ -35,7 +35,7 @@ export MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/maven-jnlp-agent ."
 
 # Build fluentd
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-daemonset-http && docker build -t vmartinvega/fluentd-kubernetes-daemonset:v1-debian-http ."
+minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-http && docker build -t vmartinvega/fluentd-kubernetes-http:v1-debian ."
 
 # Build watcher
 minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/spring-boot-watcher-service && docker build -t vmartinvega/spring-boot-watcher-service ."
