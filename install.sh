@@ -1,3 +1,5 @@
+COMPILE_DOCKER="false"
+
 minikube delete
 
 minikube start --driver=virtualbox --memory=16g --cpus=8 --disk-size=30g
@@ -29,19 +31,28 @@ minikube addons enable ingress
 
 # Compile the agents
 export JNLP_AGENT_FOLDER=jnlp-agent
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/jnlp-agent ."
+if [[ $COMPILE_DOCKER = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/jnlp-agent ."
+fi
 
 export MAVEN_JNLP_AGENT_FOLDER=maven-jnlp-agent
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/maven-jnlp-agent ."
+if [[ $COMPILE_DOCKER = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/agents/$MAVEN_JNLP_AGENT_FOLDER/ && docker build -t vmartinvega/maven-jnlp-agent ."
+fi
 
 # Build fluentd
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-http && docker build -t vmartinvega/fluentd-kubernetes-http:v1-debian ."
-
-# Build watcher
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/spring-boot-watcher-service && docker build -t vmartinvega/spring-boot-watcher-service ."
+if [[ $COMPILE_DOCKER = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/fluentd-kubernetes-http && docker build -t vmartinvega/fluentd-kubernetes-http:v1-debian ."
+fi
 
 # Build jenkins
-minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t vmartinvega/jenkins ."
+if [[ $COMPILE_DOCKER = "true" ]]
+then
+    minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t vmartinvega/jenkins ."
+fi
 GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' ; echo)
 sed "s/GITLAB_SECRET/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jjenkins-deployment.yaml
 kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
