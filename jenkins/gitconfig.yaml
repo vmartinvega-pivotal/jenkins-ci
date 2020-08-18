@@ -1,9 +1,0 @@
-apiVersion: v1
-data:
-  gitconfig: |
-    [http]
-    sslVerify = false
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: gitconfig

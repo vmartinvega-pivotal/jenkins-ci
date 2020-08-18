@@ -44,7 +44,29 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: fluentd-conf
+  name: fluent-conf
+data:
+  fluent.conf: |-
+    @include kubernetes.conf
+    @include conf.d/*.conf
+
+    <match **>
+      @type http
+      @log_level debug
+      endpoint_url    "#{ENV['JENKINS_PRODUCDER_URL']}"
+      ssl_no_verify   false  # default: false
+      http_method     post    # default: post
+      serializer      json   # default: form
+      authentication  none  # default: none
+      buffered        false   # default: false. Switch non-buffered/buffered mode
+      bulk_request    false  # default: false. Send events as application/x-ndjson
+      compress_request false  # default: false. Send compressed events
+    </match>
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kubernetes-conf
 data:
   kubernetes.conf: |-
     <label @FLUENT_LOG>
@@ -56,8 +78,10 @@ data:
     <source>
       @type tail
       read_from_head true
+      @log_level debug
       path /var/jenkins_home/fluentd/*
       pos_file /var/jenkins_home/logs/fluentd-jenkins.log.pos
+      path_key jenkins_log_file
       <parse>
         @type none
       </parse>
@@ -123,6 +147,12 @@ spec:
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
+            - name: kubernetes-config-volume
+              mountPath: /fluentd/etc/kubernetes.conf
+              subPath: kubernetes.conf
+            - name: fluent-config-volume
+              mountPath: /fluentd/etc/fluent.conf
+              subPath: fluent.conf
         - name: jenkins
           image: vmartinvega/jenkins:latest
           imagePullPolicy: IfNotPresent
@@ -156,6 +186,18 @@ spec:
         - name: jenkins-home
           persistentVolumeClaim:
             claimName: jenkins-storage
+        - name: kubernetes-config-volume
+          configMap:
+            name: kubernetes-conf
+            items:
+            - key: kubernetes.conf
+              path: kubernetes.conf
+        - name: fluent-config-volume
+          configMap:
+            name: fluent-conf
+            items:
+            - key: fluent.conf
+              path: fluent.conf
         - name: projects
           hostPath:
             path: /hosthome/vicente/Projects
