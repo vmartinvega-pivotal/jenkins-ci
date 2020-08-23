@@ -21,13 +21,14 @@ kubectl config set-cluster minikube --certificate-authority=$CA_CERTIFICATE --em
 export HOST_PROJECTS_FOLDER=/home/vicente/Projects
 export MINIKUBE_PROJECTS_FOLDER=/hosthome/vicente/Projects
 
+minikube addons enable ingress
+
 # Install gitlab
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
 sed "s/MINIKUBE_IP/$MINIKUBE_IP/g" $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/values-minikube-minimum.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
 helm install -f $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file gitlab gitlab/gitlab
 rm $HOST_PROJECTS_FOLDER/jenkins-ci/gitlab/output.file
-minikube addons enable ingress
 
 # Compile the agents
 export JNLP_AGENT_FOLDER=jnlp-agent
@@ -54,14 +55,12 @@ then
     minikube ssh "cd $MINIKUBE_PROJECTS_FOLDER/jenkins-ci/jenkins && docker build -t vmartinvega/jenkins ."
 fi
 GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' ; echo)
-sed "s/GITLAB_SECRET/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jjenkins-deployment.yaml
+sed "s/GITLAB_SECRET/$GITLAB_PASSWORD/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
 kubectl create -f $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-deployment.yaml
 
-./kubernetes/wait-until-pods-ready.sh 60 5
 KUBECONFIG_FILE_BYTES=$(cat ${HOME}/.kube/config | base64 --wrap=0)
 sed "s/KUBERNETES_URL/https:\/\/$MINIKUBE_IP:8443/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf-template.yaml > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
 sed "s/KUBECONFIG_FILE_BYTES/$KUBECONFIG_FILE_BYTES/g" $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file > $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/jenkins-conf.yaml
-GITLAB_PASSWORD=$(kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo)
 
 rm $HOST_PROJECTS_FOLDER/jenkins-ci/jenkins/output.file
 

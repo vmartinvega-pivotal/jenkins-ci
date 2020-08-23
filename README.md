@@ -73,7 +73,3 @@ ansible-playbook ansible/playbook.yml  --become --extra-vars "ansible_sudo_pass=
 ```
 ./install.sh
 ```
-
-```
-kubectl port-forward kibana-6c9fb4b5b7-plbg2 5601:5601 --namespace=kube-logging
-```
