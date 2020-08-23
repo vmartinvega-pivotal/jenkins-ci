@@ -58,18 +58,16 @@ git clone https://github.com/vmartinvega-pivotal/jenkins-ci
 ansible-galaxy install geerlingguy.docker
 ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
-ansible-galaxy install geerlingguy.kubernetes
-git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
+ansible-galaxy install geerlingguy.java
 ```
-transport.host: localhost
-transport.tcp.port: 9300
 
 * Execute playbook
 ```
+cd /home/vicente/Projects/jenkins-ci 
 ansible-playbook ansible/playbook.yml  --become --extra-vars "ansible_sudo_pass=yourPassword"
 ```
 
-* Install Jenkins, agents and logging
+* Install Jenkins with fluentd solution along with agents and some apps
 ```
 ./install.sh
 ```
