@@ -10,4 +10,3 @@
       - role: '/home/vicente/.ansible/roles/pixelart.chrome'
       - role: '/home/vicente/.ansible/roles/geerlingguy.java'
       - role: '/home/vicente/.ansible/roles/githubixx.kubectl'
-      - role: '/home/vicente/.ansible/roles/gantsign.minikube'
