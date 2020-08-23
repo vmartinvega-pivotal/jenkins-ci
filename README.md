@@ -1,15 +1,8 @@
 # Quick Install
 
-
-* Install minikube
-```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-chmod +x minikube
-sudo mv minikube /usr/local/bin/
-```
-
 * Install helm
 ```
+sudo apt-get install curl -y
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
@@ -30,8 +23,6 @@ sudo apt-get install keepass2
 
 * Install ansible
 ```
-sudo passwd root
-sudo apt update
 sudo apt install ansible
 ```
 
