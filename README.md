@@ -44,6 +44,8 @@ sudo nano /etc/ansible/hosts
 * Install git
 ```
 sudo apt-get install git
+git config --global user.email "vicente.martin.vega@gmail.com"
+git config --global user.name "vmartinvega-pivotal"
 ```
 
 * Clone repo
@@ -59,6 +61,7 @@ ansible-galaxy install geerlingguy.docker
 ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
 ansible-galaxy install geerlingguy.java
+git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
 ```
 
 * Execute playbook
