@@ -53,6 +53,7 @@ git config --global user.name "vmartinvega-pivotal"
 mkdir /home/vicente/Projects
 cd /home/vicente/Projects
 git clone https://github.com/vmartinvega-pivotal/jenkins-ci
+git clone https://github.com/vmartinvega-pivotal/spring-boot-echo-service
 ```
 
 * Install ansible roles
@@ -62,6 +63,7 @@ ansible-galaxy install gantsign.visual-studio-code
 ansible-galaxy install pixelart.chrome
 ansible-galaxy install geerlingguy.java
 git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansible/roles/githubixx.kubectl
+ansible-galaxy install gantsign.minikube
 ```
 
 * Execute playbook
