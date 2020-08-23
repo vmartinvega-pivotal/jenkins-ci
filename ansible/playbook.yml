@@ -10,6 +10,4 @@
       - role: '/home/vicente/.ansible/roles/pixelart.chrome'
       - role: '/home/vicente/.ansible/roles/geerlingguy.java'
       - role: '/home/vicente/.ansible/roles/githubixx.kubectl'
-      #- role: '/home/vicente/.ansible/roles/geerlingguy.git'
-      #- role: '/home/vicente/.ansible/roles/geerlingguy.elasticsearch'
-      #- role: '/home/vicente/.ansible/roles/geerlingguy.kibana'
+      - role: '/home/vicente/.ansible/roles/gantsign.minikube'
