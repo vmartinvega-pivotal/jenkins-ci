@@ -68,6 +68,10 @@ kubectl create -f $HOST_PROJECTS_FOLDER/spring-boot-echo-service/kubernetes/depl
 
 echo ""
 echo ""
-echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000"
+echo "Installed Jenkis at: http://${MINIKUBE_IP}:32000 or http://jenkins.local.nip.io"
 echo ""
 echo ""
+echo "Add the following entries to the file /etc/hosts"
+echo ""
+echo "${MINIKUBE_IP} gitlab.local.nip.io"
+echo "${MINIKUBE_IP} jenkins.local.nip.io"
