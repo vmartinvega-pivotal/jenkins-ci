@@ -239,6 +239,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: jenkins-webservice
+spec:
+  ports:
+    - port: 8081
+      targetPort: 8080
+  selector:
+    app: jenkins
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: jenkins-tcp-port
 spec:
   ports:
@@ -261,7 +272,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: jenkins-ingress
+  name: jenkins-webservice
   annotations:
     ingress.kubernetes.io/rewrite-target: /
 spec:
@@ -270,5 +281,6 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: jenkins
-          servicePort: 80
+          serviceName: jenkins-webservice
+          servicePort: 8081
+        path: /
