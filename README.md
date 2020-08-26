@@ -39,9 +39,12 @@ sudo nano /etc/ansible/hosts
 127.0.0.1 ansible_connection=local
 ```
 
-* Install git
+* Install git and other tools
 ```
-sudo apt-get install git
+sudo apt-get install net-tools -y
+sudo apt-get install git -y
+sudo apt-get install ssh -y
+sudo systemctl enable --now ssh
 git config --global user.email "vicente.martin.vega@gmail.com"
 git config --global user.name "vmartinvega-pivotal"
 ```
@@ -67,6 +70,8 @@ git clone https://github.com/githubixx/ansible-role-kubectl /home/vicente/.ansib
 ```
 cd /home/vicente/Projects/jenkins-ci 
 ansible-playbook ansible/playbook.yml  --become --extra-vars "ansible_sudo_pass=yourPassword"
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
 * Install Jenkins with fluentd solution along with agents and some apps
