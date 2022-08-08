@@ -101,19 +101,19 @@ spec:
       targetPort: 50000
   selector:
     app: jenkins
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: jenkins-webservice
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: jenkins.local.nip.io
-    http:
-      paths:
-      - backend:
-          serviceName: jenkins-webservice
-          servicePort: 8081
-        path: /
+#---
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: jenkins-webservice
+#  annotations:
+#    ingress.kubernetes.io/rewrite-target: /
+#spec:
+#  rules:
+#  - host: jenkins.local.nip.io
+#    http:
+#      paths:
+#      - backend:
+#          serviceName: jenkins-webservice
+#          servicePort: 8081
+#        path: /
